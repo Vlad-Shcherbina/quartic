@@ -1,11 +1,9 @@
 ---
 ---
-global_angle = 0.0
 global_transform = undefined
 
 this.start = (canvas_id) ->
   canvas = document.getElementById(canvas_id)
-  console.log canvas.width
 
   global_transform = mat3.create()
 
@@ -68,10 +66,21 @@ this.start = (canvas_id) ->
     """)
   gl.useProgram(prog)
 
+
+
+  tri_w = qqq(Math.PI / 7, Math.PI / 3)
+  tri_h = qqq(Math.PI / 3, Math.PI / 7)
+
+  p0 = toMinkowskyHyperboloid(0, 0)
+  p1 = vec3.create()
+  vec3.transformMat3(p1, p0, hyperShiftXMat(tri_w))
+  p2 = vec3.create()
+  vec3.transformMat3(p2, p0, hyperShiftYMat(tri_h))
+
   vertices = new Float32Array(3 * 3)
-  vertices.set(toMinkowskyHyperboloid(-0.2, -0.1), 0)
-  vertices.set(toMinkowskyHyperboloid(0.2, -0.1), 3)
-  vertices.set(toMinkowskyHyperboloid(0, 0.3), 6)
+  vertices.set(p0, 0)
+  vertices.set(p1, 3)
+  vertices.set(p2, 6)
 
   buffer = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
@@ -83,24 +92,35 @@ this.start = (canvas_id) ->
 
   render = () ->
     requestAnimationFrame(render)
-    global_angle += 0.01
     gl.viewport(0, 0, canvas.width, canvas.height)
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0)
     gl.clear(gl.COLOR_BUFFER_BIT)
 
-    for i in [-8..8]
-      for j in [-8..8]
-        mat = mat3.create()
-
-        mat3.mul(mat, mat, global_transform)
-        mat3.mul(mat, mat, hyperShiftXMat(0.5 * i))
-        mat3.mul(mat, mat, hyperShiftYMat(0.5 * j))
-        mat3.rotate(mat, mat, global_angle)
+    draw_heptagon = (base_mat) ->
+      mat = mat3.create()
+      for i in [0..6]
+        mat3.mul(mat, global_transform, base_mat)
+        mat3.rotate(mat, mat, 2 * i * Math.PI / 7)
+        mat3.mul(mat, mat, hyperShiftXMat(-tri_w))
 
         gl.uniformMatrix3fv(prog.mat_uniform, false, mat)
 
         gl.drawArrays(gl.TRIANGLES, 0, 3)
+
+    mat = mat3.create()
+    draw_heptagon(mat)
+
+    for i in [0..6]
+      mat = mat3.create()
+      mat3.rotate(mat, mat, 2 * i * Math.PI / 7)
+
+      for j in [1..5]
+        mat3.rotate(mat, mat, 2 * (3 + j % 2) * Math.PI / 7)
+        mat3.mul(mat, mat, hyperShiftXMat(-tri_w * 2))
+        mat3.rotate(mat, mat, Math.PI)
+        draw_heptagon(mat)
+
 
   render()
 
@@ -122,21 +142,3 @@ shaderProgram = (gl, vs, fs) ->
   if not gl.getProgramParameter(prog, gl.LINK_STATUS)
     throw "Could not link the shader program!"
   return prog
-
-
-# Hyperbolic geometry utils
-
-toMinkowskyHyperboloid = (x, y) ->
-  new Float32Array([x, y, Math.sqrt(x*x + y*y + 1)])
-
-hyperShiftXMat = (dx) ->
-  mat = mat3.create()
-  mat[8] = mat[0] = Math.cosh(dx)
-  mat[2] = mat[6] = Math.sinh(dx)
-  mat
-
-hyperShiftYMat = (dy) ->
-  mat = mat3.create()
-  mat[8] = mat[4] = Math.cosh(dy)
-  mat[5] = mat[7] = Math.sinh(dy)
-  mat
