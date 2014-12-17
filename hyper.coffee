@@ -18,7 +18,6 @@ this.hyperShiftYMat = (dy) ->
   mat
 
 this.qqq = (alpha, beta) ->
-  console.log alpha, beta
   d = Math.cos(beta) / Math.sin(alpha)
   r = Math.sqrt((d + 1) * (d - 1))
-  Math.asinh((d - 1) / r)
+  Math.atanh((d - 1) / r) * 2

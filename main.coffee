@@ -68,8 +68,10 @@ this.start = (canvas_id) ->
 
 
 
-  tri_w = qqq(Math.PI / 7, Math.PI / 3)
-  tri_h = qqq(Math.PI / 3, Math.PI / 7)
+  N = 7
+  M = 3
+  tri_w = qqq(Math.PI / N, Math.PI / M)
+  tri_h = qqq(Math.PI / M, Math.PI / N)
 
   p0 = toMinkowskyHyperboloid(0, 0)
   p1 = vec3.create()
@@ -99,24 +101,23 @@ this.start = (canvas_id) ->
 
     draw_heptagon = (base_mat) ->
       mat = mat3.create()
-      for i in [0..6]
+      for i in [0..N-1]
         mat3.mul(mat, global_transform, base_mat)
-        mat3.rotate(mat, mat, 2 * i * Math.PI / 7)
+        mat3.rotate(mat, mat, 2 * i * Math.PI / N)
         mat3.mul(mat, mat, hyperShiftXMat(-tri_w))
 
         gl.uniformMatrix3fv(prog.mat_uniform, false, mat)
-
         gl.drawArrays(gl.TRIANGLES, 0, 3)
 
     mat = mat3.create()
     draw_heptagon(mat)
 
-    for i in [0..6]
+    for i in [0..N-1]
       mat = mat3.create()
-      mat3.rotate(mat, mat, 2 * i * Math.PI / 7)
+      mat3.rotate(mat, mat, 2 * i * Math.PI / N)
 
-      for j in [1..5]
-        mat3.rotate(mat, mat, 2 * (3 + j % 2) * Math.PI / 7)
+      for j in [1..4]
+        mat3.rotate(mat, mat, 2 * (N//2 + j%2) * Math.PI / N)
         mat3.mul(mat, mat, hyperShiftXMat(-tri_w * 2))
         mat3.rotate(mat, mat, Math.PI)
         draw_heptagon(mat)
