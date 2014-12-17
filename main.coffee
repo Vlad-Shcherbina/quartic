@@ -4,13 +4,24 @@ global_transform = undefined
 
 this.start = (canvas_id) ->
   canvas = document.getElementById(canvas_id)
+  console.log canvas.clientWidth, canvas.width
+
+  devicePixelRatio = window.devicePixelRatio || 1;
+  canvas.width = canvas.clientWidth * devicePixelRatio;
+  canvas.height = canvas.clientHeight * devicePixelRatio;
 
   global_transform = mat3.create()
 
   shift = (dx, dy) ->
     q = 2
-    mat3.mul(global_transform, hyperShiftXMat(dx / canvas.width * q), global_transform)
-    mat3.mul(global_transform, hyperShiftYMat(-dy / canvas.height * q), global_transform)
+    mat3.mul(
+      global_transform,
+      hyperShiftXMat(dx / canvas.clientWidth * q),
+      global_transform)
+    mat3.mul(
+      global_transform,
+      hyperShiftYMat(-dy / canvas.clientHeight * q),
+      global_transform)
 
   prev_touch_x = 0
   prev_touch_y = 0
@@ -66,8 +77,6 @@ this.start = (canvas_id) ->
     """)
   gl.useProgram(prog)
 
-
-
   N = 7
   M = 3
   tri_w = qqq(Math.PI / N, Math.PI / M)
@@ -116,12 +125,11 @@ this.start = (canvas_id) ->
       mat = mat3.create()
       mat3.rotate(mat, mat, 2 * i * Math.PI / N)
 
-      for j in [1..4]
+      for j in [1..3]
         mat3.rotate(mat, mat, 2 * (N//2 + j%2) * Math.PI / N)
         mat3.mul(mat, mat, hyperShiftXMat(-tri_w * 2))
         mat3.rotate(mat, mat, Math.PI)
         draw_heptagon(mat)
-
 
   render()
 
