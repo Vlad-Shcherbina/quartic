@@ -64,18 +64,29 @@ this.start = (canvas_id) ->
   prog = shaderProgram(gl,
     """
     attribute vec3 pos;
+    attribute vec2 tex_coord;
     uniform mat3 mat;
+
+    varying vec2 v_tex_coord;
+
     void main() {
       vec3 q = mat * pos;
       gl_Position = vec4(q, q.z + 1.0);
+      v_tex_coord = tex_coord;
     }
     """,
     """
+    precision mediump float;
+
+    varying vec2 v_tex_coord;
+
     void main() {
-      gl_FragColor = vec4(1, 1, 0, 1);
+      gl_FragColor = vec4(v_tex_coord, 1, 1);
     }
     """)
-  gl.useProgram(prog)
+  prog.pos_attr = gl.getAttribLocation(prog, "pos")
+  prog.tex_coord_attr = gl.getAttribLocation(prog, "tex_coord")
+  prog.mat_uniform = gl.getUniformLocation(prog, "mat")
 
   N = 7
   M = 3
@@ -92,14 +103,25 @@ this.start = (canvas_id) ->
   vertices.set(p0, 0)
   vertices.set(p1, 3)
   vertices.set(p2, 6)
+  pos_buffer = createAndFillBuffer(gl, vertices)
 
-  buffer = gl.createBuffer()
-  gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
-  gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW)
-  prog.pos_attr = gl.getAttribLocation(prog, "pos")
-  prog.mat_uniform = gl.getUniformLocation(prog, "mat")
+  tex_coords = new Float32Array([
+    0, 0
+    1, 0
+    0, 1
+  ])
+  tex_coord_buffer = createAndFillBuffer(gl, tex_coords)
+
+  gl.useProgram(prog)
+
   gl.enableVertexAttribArray(prog.pos_attr)
+  gl.bindBuffer(gl.ARRAY_BUFFER, pos_buffer)
   gl.vertexAttribPointer(prog.pos_attr, 3, gl.FLOAT, false, 0, 0)
+
+  gl.enableVertexAttribArray(prog.tex_coord_attr)
+  gl.bindBuffer(gl.ARRAY_BUFFER, tex_coord_buffer)
+  gl.vertexAttribPointer(prog.tex_coord_attr, 2, gl.FLOAT, false, 0, 0)
+
 
   render = () ->
     requestAnimationFrame(render)
@@ -132,6 +154,14 @@ this.start = (canvas_id) ->
         draw_heptagon(mat)
 
   render()
+
+
+createAndFillBuffer = (gl, data) ->
+  # data is Float32Array
+  buffer = gl.createBuffer()
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
+  gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW)
+  return buffer
 
 
 shaderProgram = (gl, vs, fs) ->
