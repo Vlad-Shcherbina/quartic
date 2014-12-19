@@ -6,12 +6,33 @@
 <script src="https://cdn.rawgit.com/toji/gl-matrix/09330b9a1b7c178f7fb7c381b2703c04b483abc9/dist/gl-matrix-min.js"></script>
 <script src="hyper.js"></script>
 <script src="main.js"></script>
+<script>
+  var n = 7;
+  var m = 3;
+
+  hash = window.location.hash.substring(1);
+  parts = hash.split(',');
+  if (parts.length == 2) {
+    n = parseInt(parts[0]);
+    m = parseInt(parts[1]);
+  }
+
+  window.onhashchange = function() {window.location.reload();};
+</script>
 </head>
 
-<body onload="start('glcanvas')" style="margin: 0px;">
+<body onload="start('glcanvas', n, m)" style="margin: 0px;">
   <canvas id="glcanvas" style="width:100vmin; height:100vmin;">
     Canvas not supported :(
   </canvas>
+
+  <ul style="display: inline-block;">
+    <li><a href="#7,3">{7, 3}</a></li>
+    <li><a href="#5,4">{5, 4}</a></li>
+    <li><a href="#14,14">{14, 14}</a></li>
+    <li>or just edit URL</li>
+  </ul>
+  </div>
 </body>
 
 </html>

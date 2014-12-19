@@ -2,7 +2,7 @@
 ---
 global_transform = undefined
 
-this.start = (canvas_id) ->
+this.start = (canvas_id, N, M) ->
   canvas = document.getElementById(canvas_id)
   console.log canvas.clientWidth, canvas.width
 
@@ -88,8 +88,6 @@ this.start = (canvas_id) ->
   prog.tex_coord_attr = gl.getAttribLocation(prog, "tex_coord")
   prog.mat_uniform = gl.getUniformLocation(prog, "mat")
 
-  N = 7
-  M = 3
   if N < 1 or M < 1 or 2 * (N + M) >= N * M
     window.alert("Invalid values of n and m")
     return
