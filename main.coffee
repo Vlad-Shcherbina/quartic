@@ -71,7 +71,7 @@ this.start = (canvas_id) ->
 
     void main() {
       vec3 q = mat * pos;
-      gl_Position = vec4(q, q.z + 1.0);
+      gl_Position = vec4(1.0 / (q.z + 1.0) * q, 1.0);
       v_tex_coord = tex_coord;
     }
     """,
