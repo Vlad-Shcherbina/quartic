@@ -90,6 +90,10 @@ this.start = (canvas_id) ->
 
   N = 7
   M = 3
+  if N < 1 or M < 1 or 2 * (N + M) >= N * M
+    window.alert("Invalid values of n and m")
+    return
+
   tri_w = qqq(Math.PI / N, Math.PI / M)
   tri_h = qqq(Math.PI / M, Math.PI / N)
 
@@ -99,17 +103,40 @@ this.start = (canvas_id) ->
   p2 = vec3.create()
   vec3.transformMat3(p2, p0, hyperShiftYMat(tri_h))
 
-  vertices = new Float32Array(3 * 3)
-  vertices.set(p0, 0)
-  vertices.set(p1, 3)
-  vertices.set(p2, 6)
-  pos_buffer = createAndFillBuffer(gl, vertices)
+  edge_subdivisions = 4
+  num_vertices = N * edge_subdivisions + 1 + 1
+  vertices = new Float32Array(3 * num_vertices)
+  tex_coords = new Float32Array(2 * num_vertices)
+  origin = toMinkowskyHyperboloid(0, 0)
 
-  tex_coords = new Float32Array([
-    0, 0
-    1, 0
-    0, 1
-  ])
+  idx = 0
+  vertices.set(origin, idx * 3)
+  tex_coords.set([0.5, 0.5], idx * 2)
+  idx += 1
+
+  for i in [0 .. N-1]
+    for j in [0 .. edge_subdivisions - 1]
+      m = mat3.create()
+      mat3.rotate(m, m, 2 * i * Math.PI / N + Math.PI)
+      mat3.mul(m, m, hyperShiftXMat(tri_w))
+      mat3.mul(m, m, hyperShiftYMat(tri_h * (2.0 * j / edge_subdivisions - 1)))
+      p = vec3.create()
+      vec3.transformMat3(p, origin, m)
+      vertices.set(p, idx * 3)
+      tex_coords.set([
+        (1 + Math.sin(3 * Math.PI * (i + j/edge_subdivisions) / N)) / 2,
+        (1 + Math.cos(2 * Math.PI * (i + j/edge_subdivisions) / N)) / 2
+        ], idx * 2)
+      idx += 1
+
+  # Repeat first vertex to close the loop.
+  vertices.set(vertices.subarray(3, 3 + 3), idx * 3)
+  tex_coords.set(tex_coords.subarray(2, 2 + 2), idx * 2)
+  idx += 1
+  if idx != num_vertices
+    throw 'zzz'
+
+  pos_buffer = createAndFillBuffer(gl, vertices)
   tex_coord_buffer = createAndFillBuffer(gl, tex_coords)
 
   gl.useProgram(prog)
@@ -132,13 +159,10 @@ this.start = (canvas_id) ->
 
     draw_heptagon = (base_mat) ->
       mat = mat3.create()
-      for i in [0..N-1]
-        mat3.mul(mat, global_transform, base_mat)
-        mat3.rotate(mat, mat, 2 * i * Math.PI / N)
-        mat3.mul(mat, mat, hyperShiftXMat(-tri_w))
+      mat3.mul(mat, global_transform, base_mat)
+      gl.uniformMatrix3fv(prog.mat_uniform, false, mat)
+      gl.drawArrays(gl.TRIANGLE_FAN, 0, num_vertices)
 
-        gl.uniformMatrix3fv(prog.mat_uniform, false, mat)
-        gl.drawArrays(gl.TRIANGLES, 0, 3)
 
     mat = mat3.create()
     draw_heptagon(mat)
