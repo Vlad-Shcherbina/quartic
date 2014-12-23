@@ -137,6 +137,8 @@ this.start = (canvas_id, N, M) ->
   gl.bindBuffer(gl.ARRAY_BUFFER, tex_coord_buffer)
   gl.vertexAttribPointer(prog.tex_coord_attr, 2, gl.FLOAT, false, 0, 0)
 
+  drawLine = LineDrawer(gl)
+
   render_frame = () ->
     requestAnimationFrame(render_frame)
     gl.viewport(0, 0, canvas.width, canvas.height)
@@ -145,6 +147,12 @@ this.start = (canvas_id, N, M) ->
     gl.clear(gl.COLOR_BUFFER_BIT)
 
     draw_heptagon = (base_mat) ->
+      gl.useProgram(prog)
+      gl.bindBuffer(gl.ARRAY_BUFFER, pos_buffer)
+      gl.vertexAttribPointer(prog.pos_attr, 3, gl.FLOAT, false, 0, 0)
+      gl.bindBuffer(gl.ARRAY_BUFFER, tex_coord_buffer)
+      gl.vertexAttribPointer(prog.tex_coord_attr, 2, gl.FLOAT, false, 0, 0)
+
       mat = mat3.create()
       mat3.mul(mat, global_transform, base_mat)
       gl.uniformMatrix3fv(prog.mat_uniform, false, mat)
@@ -153,6 +161,8 @@ this.start = (canvas_id, N, M) ->
 
     mat = mat3.create()
     draw_heptagon(mat)
+
+    drawLine(0, 0, 0.5, 0.3)
 
     for i in [0..N-1]
       mat = mat3.create()
