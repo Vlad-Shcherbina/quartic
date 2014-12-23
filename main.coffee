@@ -4,11 +4,7 @@ global_transform = undefined
 
 this.start = (canvas_id, N, M) ->
   canvas = document.getElementById(canvas_id)
-  console.log canvas.clientWidth, canvas.width
-
-  devicePixelRatio = window.devicePixelRatio || 1;
-  canvas.width = canvas.clientWidth * devicePixelRatio;
-  canvas.height = canvas.clientHeight * devicePixelRatio;
+  gl = glFromCanvas canvas
 
   global_transform = mat3.create()
 
@@ -54,12 +50,6 @@ this.start = (canvas_id, N, M) ->
     dy = event.movementY
     shift(dx, dy)
   , false)
-
-
-  gl = canvas.getContext("webgl") or canvas.getContext("experimental-webgl")
-  if not gl
-    alert "Unable to initialize WebGL."
-    return
 
   prog = shaderProgram(gl,
     """
@@ -147,9 +137,8 @@ this.start = (canvas_id, N, M) ->
   gl.bindBuffer(gl.ARRAY_BUFFER, tex_coord_buffer)
   gl.vertexAttribPointer(prog.tex_coord_attr, 2, gl.FLOAT, false, 0, 0)
 
-
-  render = () ->
-    requestAnimationFrame(render)
+  render_frame = () ->
+    requestAnimationFrame(render_frame)
     gl.viewport(0, 0, canvas.width, canvas.height)
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0)
@@ -175,31 +164,4 @@ this.start = (canvas_id, N, M) ->
         mat3.rotate(mat, mat, Math.PI)
         draw_heptagon(mat)
 
-  render()
-
-
-createAndFillBuffer = (gl, data) ->
-  # data is Float32Array
-  buffer = gl.createBuffer()
-  gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
-  gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW)
-  return buffer
-
-
-shaderProgram = (gl, vs, fs) ->
-  prog = gl.createProgram()
-  addShader = (type, source) ->
-    s = gl.createShader(type)
-    gl.shaderSource(s, source)
-    gl.compileShader(s)
-    if not gl.getShaderParameter(s, gl.COMPILE_STATUS)
-      throw "Could not compile " + type + " shader:\n\n" + gl.getShaderInfoLog(s)
-    gl.attachShader(prog, s)
-    return
-
-  addShader(gl.VERTEX_SHADER, vs)
-  addShader(gl.FRAGMENT_SHADER, fs)
-  gl.linkProgram(prog)
-  if not gl.getProgramParameter(prog, gl.LINK_STATUS)
-    throw "Could not link the shader program!"
-  return prog
+  render_frame()
