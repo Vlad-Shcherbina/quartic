@@ -5,10 +5,21 @@ this.glFromCanvas = (canvas) ->
   canvas.width = canvas.clientWidth * devicePixelRatio;
   canvas.height = canvas.clientHeight * devicePixelRatio;
 
-  gl = canvas.getContext("webgl") or canvas.getContext("experimental-webgl")
+  gl = canvas.getContext('webgl') or canvas.getContext('experimental-webgl')
   if not gl
-    alert "Unable to initialize WebGL."
+    alert 'Unable to initialize WebGL.'
     return
+
+  if GL_DEBUG
+    console.log 'GL DEBUG'
+    throwOnGlError = (err, funcName, args) ->
+      throw WebGLDebugUtils.glEnumToString(err) + ' was caused by call to: ' + funcName
+    validateNoneOfTheArgsAreUndefined = (funcName, args) ->
+      for arg in args
+        if args == undefined
+          throw 'Undefined passed to gl.' + funcName
+    gl = WebGLDebugUtils.makeDebugContext(
+      gl, throwOnGlError, validateNoneOfTheArgsAreUndefined)
   gl
 
 
@@ -27,7 +38,7 @@ this.shaderProgram = (gl, vs, fs) ->
     gl.shaderSource(s, source)
     gl.compileShader(s)
     if not gl.getShaderParameter(s, gl.COMPILE_STATUS)
-      throw "Could not compile " + type + " shader:\n\n" + gl.getShaderInfoLog(s)
+      throw 'Could not compile ' + type + ' shader:\n\n' + gl.getShaderInfoLog(s)
     gl.attachShader(prog, s)
     return
 
@@ -35,5 +46,5 @@ this.shaderProgram = (gl, vs, fs) ->
   addShader(gl.FRAGMENT_SHADER, fs)
   gl.linkProgram(prog)
   if not gl.getProgramParameter(prog, gl.LINK_STATUS)
-    throw "Could not link the shader program!"
+    throw 'Could not link the shader program!'
   return prog

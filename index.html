@@ -1,3 +1,6 @@
+---
+GL_DEBUG: false
+---
 <!DOCTYPE html>
 <html>
 <head>
@@ -5,8 +8,21 @@
 <!-- <meta http-equiv="refresh" content="3"> -->
 <script src="https://cdn.rawgit.com/toji/gl-matrix/09330b9a1b7c178f7fb7c381b2703c04b483abc9/dist/gl-matrix-min.js"></script>
 <script src="hyper.js"></script>
+
+{% if page.GL_DEBUG %}
+<script src="https://www.khronos.org/registry/webgl/sdk/debug/webgl-debug.js"></script>
+<script>
+  var GL_DEBUG = true;
+</script>
+{% else %}
+<script>
+  var GL_DEBUG = false;
+</script>
+{% endif %}
+
 <script src="graphics.js"></script>
 <script src="main.js"></script>
+
 <script>
   var n = 7;
   var m = 3;
