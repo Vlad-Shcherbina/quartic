@@ -78,7 +78,7 @@ this.LineDrawer = (gl) ->
     dx = x2 - x1
     dy = y2 - y1
     d = dx * dx + dy * dy
-    if d < 0.001
+    if d < 1e-8
       dx = 0.5 * width
       dy = 0
     else
@@ -89,8 +89,8 @@ this.LineDrawer = (gl) ->
     vertices = new Float32Array([
       x1 - dx - dy, y1 - dy + dx
       x1 - dx + dy, y1 - dy - dx
-      x2 - dx - dy, y2 - dy + dx
-      x2 - dx + dy, y2 - dy - dx
+      x2 + dx - dy, y2 + dy + dx
+      x2 + dx + dy, y2 + dy - dx
     ])
 
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
