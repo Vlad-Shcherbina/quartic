@@ -35,8 +35,8 @@ GL_DEBUG: false
   if (parts.length == 5) {
     n = parseInt(parts[0]);
     m = parseInt(parts[1]);
-    plus_angle = parseInt(parts[2]);
-    minus_angle = parseInt(parts[3]);
+    plus_angle = parseFloat(parts[2]);
+    minus_angle = parseFloat(parts[3]);
     num_iterations = parseInt(parts[4]);
   }
 
@@ -51,9 +51,7 @@ GL_DEBUG: false
   </canvas>
 
   <ul style="display: inline-block;">
-    <li><a href="#7,3">{7, 3}</a></li>
-    <li><a href="#5,4">{5, 4}</a></li>
-    <li><a href="#14,14">{14, 14}</a></li>
+    <li><a href="#7,3,1.3,5.7,4">default</a></li>
     <li>or just edit URL</li>
   </ul>
   </div>
