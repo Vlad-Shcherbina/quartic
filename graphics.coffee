@@ -93,11 +93,13 @@ this.LineDrawer = (gl) ->
       x2 + dx + dy, y2 + dy - dx
     ])
 
+
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, vertices)
 
     gl.useProgram(prog)
 
+    gl.enableVertexAttribArray(prog.pos_attr)
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
     gl.vertexAttribPointer(prog.pos_attr, 2, gl.FLOAT, false, 0, 0)
 
