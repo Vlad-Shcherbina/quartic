@@ -57,3 +57,31 @@ this.flipSpin = (spin) ->
     end: spin.start
     N : spin.N
   }
+
+this.rotateSpin = (spin, k) ->
+  dir = Math.atan2(spin.start[1], spin.start[0])
+  d = Math.asinh(Math.sqrt(
+    spin.start[0] * spin.start[0] + spin.start[1] * spin.start[1]))
+
+  # rot = mat3.create()
+  # mat3.rotate(rot, rot, 2 * Math.PI * k / spin.N)
+
+  p0 = vec3.clone(spin.start)
+  vec3.rotateZ(p0, p0, vec3.create(), -dir)
+  vec3.transformMat3(p0, p0, hyperShiftXMat(-d))
+  vec3.rotateZ(p0, p0, vec3.create(), 2.0 * Math.PI * k / spin.N)
+  vec3.transformMat3(p0, p0, hyperShiftXMat(d))
+  vec3.rotateZ(p0, p0, vec3.create(), dir)
+
+  p1 = vec3.clone(spin.end)
+  vec3.rotateZ(p1, p1, vec3.create(), -dir)
+  vec3.transformMat3(p1, p1, hyperShiftXMat(-d))
+  vec3.rotateZ(p1, p1, vec3.create(), 2.0 * Math.PI * k / spin.N)
+  vec3.transformMat3(p1, p1, hyperShiftXMat(d))
+  vec3.rotateZ(p1, p1, vec3.create(), dir)
+
+  return {
+    start: p0
+    end: p1
+    N : spin.N
+  }

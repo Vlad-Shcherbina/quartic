@@ -1,0 +1,62 @@
+---
+GL_DEBUG: false
+---
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- <meta http-equiv="refresh" content="3"> -->
+<script src="https://cdn.rawgit.com/toji/gl-matrix/09330b9a1b7c178f7fb7c381b2703c04b483abc9/dist/gl-matrix-min.js"></script>
+<script src="../hyper.js"></script>
+
+{% if page.GL_DEBUG %}
+<script src="../libs/webgl-debug.js"></script>
+<script>
+  var GL_DEBUG = true;
+</script>
+{% else %}
+<script>
+  var GL_DEBUG = false;
+</script>
+{% endif %}
+
+<script src="../graphics.js"></script>
+<script src="main.js"></script>
+
+<script>
+  var n = 7;
+  var m = 3;
+  var plus_angle = 1.3;
+  var minus_angle = 5.7;
+  var num_iterations = 4;
+
+  hash = window.location.hash.substring(1);
+  parts = hash.split(',');
+  if (parts.length == 5) {
+    n = parseInt(parts[0]);
+    m = parseInt(parts[1]);
+    plus_angle = parseInt(parts[2]);
+    minus_angle = parseInt(parts[3]);
+    num_iterations = parseInt(parts[4]);
+  }
+
+  window.onhashchange = function() {window.location.reload();};
+</script>
+</head>
+
+<body onload="start('glcanvas', n, m, plus_angle, minus_angle, num_iterations)"
+      style="margin: 0px;">
+  <canvas id="glcanvas" style="width:100vmin; height:100vmin;">
+    Canvas not supported :(
+  </canvas>
+
+  <ul style="display: inline-block;">
+    <li><a href="#7,3">{7, 3}</a></li>
+    <li><a href="#5,4">{5, 4}</a></li>
+    <li><a href="#14,14">{14, 14}</a></li>
+    <li>or just edit URL</li>
+  </ul>
+  </div>
+</body>
+
+</html>
